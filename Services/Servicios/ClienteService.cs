@@ -1,9 +1,11 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Repository.Data.Clientes;
+
 
 namespace Services.Servicios
 {
@@ -46,7 +48,7 @@ namespace Services.Servicios
             return clienteRepository.select(documento);
         }
 
-        public List<ClienteModel> listado()
+        public IEnumerable<ClienteModel> GetAll()
         {
             return clienteRepository.list();
         }

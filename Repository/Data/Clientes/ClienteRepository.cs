@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Dapper;
+using Npgsql;
 using Repository.Data.DBConfig;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Repository.Data.Clientes
 {
     public class ClienteRepository
     {
-        NpgsqlConnection _connection;
+        IDbConnection _connection;
         public ClienteRepository(string connectionString)
         {
             _connection = new ConnectionDB(connectionString).OpenConnection();
@@ -23,18 +24,8 @@ namespace Repository.Data.Clientes
         {
             try
             {
-                var cmd = _connection.CreateCommand();
-                cmd.CommandText = "INSERT INTO cliente(id_banco, nombre, apellido, documento, direccion, mail, celular, estado) " +
-                    $"Values(" +
-                    $"'{clienteModel.id_banco}', " +
-                    $"'{clienteModel.nombre}', " +
-                    $"'{clienteModel.apellido}', " +
-                    $"'{clienteModel.documento}', " +
-                    $"'{clienteModel.direccion}', " +
-                    $"'{clienteModel.mail}', " +
-                    $"'{clienteModel.celular}', " +
-                    $"'{clienteModel.estado}') ";
-                cmd.ExecuteNonQuery();
+                _connection.Execute("INSERT INTO cliente(id_banco, nombre, apellido, documento, direccion, mail, celular, estado) " +
+                    "VALUES(@id_banco, @nombre, @apellido, @documento, @direccion, @mail, @celular, @estado)", clienteModel);
                 return true;
             }
             catch (Exception ex)
@@ -47,9 +38,7 @@ namespace Repository.Data.Clientes
         {
             try
             {
-                var cmd = _connection.CreateCommand();
-                cmd.CommandText = $"DELETE FROM cliente WHERE documento ='{documento}'";
-                cmd.ExecuteNonQuery();
+                _connection.Execute("DELETE FROM cliente WHERE documento = @Documento", new { Documento = documento });
                 return true;
             }
             catch (Exception ex)
@@ -62,15 +51,12 @@ namespace Repository.Data.Clientes
         {
             try
             {
-                var cmd = _connection.CreateCommand();
-                cmd.CommandText = "UPDATE cliente" +
-                    $" SET " +
-                    $"direccion = '{clienteModel.direccion}', " +
-                    $"mail = '{clienteModel.mail}', " +
-                    $"celular = '{clienteModel.celular}', " +
-                    $"estado = '{clienteModel.estado}' " +
-                    $" WHERE documento = '{documento}' ";
-                cmd.ExecuteNonQuery();
+                _connection.Execute("UPDATE cliente SET " +
+                    "direccion = @direccion, " +
+                    "mail = @mail, " +
+                    "celular = @celular, " +
+                    "estado = @estado " +
+                    "WHERE documento = @Documento", clienteModel);
                 return true;
             }
             catch (Exception ex)
@@ -78,37 +64,12 @@ namespace Repository.Data.Clientes
                 throw ex;
             }
         }
+
         public ClienteModel select(string documento)
         {
             try
             {
-                var cmd = _connection.CreateCommand();
-                cmd.CommandText = $"SELECT * FROM cliente WHERE documento = '{documento}'";
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-
-                        ClienteModel cliente = new ClienteModel
-                        {
-                            id_banco = (int)reader["id_banco"],
-                            nombre = reader["nombre"].ToString(),
-                            apellido = reader["apellido"].ToString(),
-                            documento = reader["documento"].ToString(),
-                            direccion = reader["direccion"].ToString(),
-                            mail = reader["mail"].ToString(),
-                            celular = reader["celular"].ToString(),
-                            estado = reader["estado"].ToString()
-                        };
-
-                        return cliente;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
+                return _connection.QuerySingleOrDefault<ClienteModel>("SELECT * FROM cliente WHERE documento = @Documento", new { Documento = documento });
             }
             catch (Exception ex)
             {
@@ -116,44 +77,28 @@ namespace Repository.Data.Clientes
             }
         }
 
-        public List<ClienteModel> list()
+        public IEnumerable<ClienteModel> list()
         {
-            List<ClienteModel> clientes = new List<ClienteModel>();
-
-            var cmd = _connection.CreateCommand();
-            cmd.CommandText = "SELECT * FROM cliente";
-            var list = cmd.ExecuteReader();
-
-            while (list.Read())
+            try
             {
-                clientes.Add(new ClienteModel
-                {
-                    id_banco = (int)list.GetValue(1),
-                    nombre = list.GetString(2),
-                    apellido = list.GetString(3),
-                    documento = list.GetString(4),
-                    direccion = list.GetString(5),
-                    mail = list.GetString(6),
-                    celular = list.GetString(7),
-                    estado = list.GetString(8)
-                });
+                return _connection.Query<ClienteModel>("SELECT * FROM cliente");
             }
-            return clientes;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
         public int ObtenerIdClientePorDocumento(string documentoCliente)
         {
-            // Aquí debes implementar la lógica para obtener el ID del cliente
-            // basado en el documento del cliente, puedes hacer una consulta
-            // a la base de datos o utilizar algún otro método para obtener el ID.
-            // Por ejemplo, puedes usar Entity Framework o hacer una consulta SQL.
-
-            // Ejemplo de consulta SQL (solo como referencia, adapta según tu base de datos y lógica):
-            var cmd = _connection.CreateCommand();
-            cmd.CommandText = $"SELECT id FROM cliente WHERE documento = '{documentoCliente}'";
-            int idCliente = (int)cmd.ExecuteScalar();
-
-            return idCliente;
+            try
+            {
+                return _connection.QuerySingleOrDefault<int>("SELECT id FROM cliente WHERE documento = @Documento", new { Documento = documentoCliente });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
-
 }

@@ -1,7 +1,6 @@
-﻿using Npgsql;
-using Repository.Data.Clientes;
-using Repository.Data.DBConfig;
+﻿using Repository.Data.Clientes;
 using Repository.Data.Facturas;
+using Repository.Data.Sucursales;
 using Services.Servicios;
 using System.Globalization;
 
@@ -15,6 +14,7 @@ namespace Consola
 
             ClienteService clienteService = new ClienteService(connectionString);
             FacturaService facturaService = new FacturaService(connectionString);
+            SucursalService sucursalService = new SucursalService(connectionString);
 
             Console.WriteLine("Bienvenido");
 
@@ -26,6 +26,8 @@ namespace Consola
                 Console.WriteLine("\nDigite una de las siguientes opciones:");
                 Console.WriteLine("C - Para Clientes");
                 Console.WriteLine("F - Para Facturas");
+                Console.WriteLine("S - Para Sucursales");
+
                 Console.Write("Opcion: ");
                 string menu = Console.ReadLine().ToUpper();
 
@@ -46,7 +48,7 @@ namespace Consola
                             Console.Write("Número de Documento: ");
                             factura.documento_cliente = Console.ReadLine();
 
-                            Console.Write("Número de Factura: (Formato XXX-XXX-XXXX-XXXXXX): ");
+                            Console.Write("Número de Factura: (Formato XXX-XXX-XXXXXX): ");
                             factura.nro_factura = Console.ReadLine();
 
                             Console.Write("Fecha y Hora (YYYY-MM-DD HH:mm:ss): ");
@@ -153,7 +155,7 @@ namespace Consola
                         {
 
                             Console.WriteLine("\n Listado de todas las facturas:\n ");
-                            facturaService.listado().ForEach(factura =>
+                            facturaService.GetAll().ToList().ForEach(factura =>
                             Console.WriteLine(
                             $" Nro Factura: {factura.nro_factura} \n " +
                             $"Fecha y Hora: {factura.fecha_hora} \n " +
@@ -262,7 +264,7 @@ namespace Consola
                         if (opcionc == "5")
                         {
                             Console.WriteLine("\n Lista de Clientes: \n");
-                            clienteService.listado().ForEach(cliente =>
+                            clienteService.GetAll().ToList().ForEach(cliente =>
                             Console.WriteLine(
                                 $" Nombre: {cliente.nombre} \n " +
                                 $"Apellido: {cliente.apellido} \n " +
@@ -271,6 +273,106 @@ namespace Consola
                                 $"Mail: {cliente.mail} \n " +
                                 $"Celular: {cliente.celular} \n " +
                                 $"Estado: {cliente.estado} \n "
+                                )
+                            );
+                        }
+                        break;
+
+                    case "S":
+                        Console.WriteLine("\nMenu de Sucursales \n Seleccione una de las siguientes opciones");
+                        Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
+                        string opciones = Console.ReadLine();
+
+                        if (opciones == "0")
+                        {
+                            break;
+                        }
+                        if (opciones == "1")
+                        {
+                            var sucursal = new SucursalModel();
+                            Console.WriteLine("Ingrese los datos de la sucursal: ");
+                            sucursal.descripcion = ReadInput("Descripción: ");
+                            sucursal.direccion = ReadInput("Dirección: ");
+                            sucursal.telefono = ReadInput("Teléfono: ");
+                            sucursal.whatsapp = ReadInput("WhatsApp: ");
+                            sucursal.mail = ReadInput("Correo electrónico: ");
+                            sucursal.estado = ReadInput("Estado: ");
+
+                            sucursalService.agregar(sucursal);
+
+                            Console.WriteLine("La sucursal ha sido registrada correctamente.");
+                        }
+                        if (opciones == "2")
+                        {
+                            Console.WriteLine("Ingrese el ID de la sucursal a eliminar:");
+                            int id = int.Parse(Console.ReadLine());
+
+                            sucursalService.eliminar(id);
+
+                            Console.WriteLine("La sucursal ha sido eliminada correctamente");
+                        }
+                        if (opciones == "3")
+                        {
+                            var sucursal = new SucursalModel();
+
+                            Console.WriteLine("Ingrese el ID de la sucursal a actualizar:");
+                            int id = int.Parse(Console.ReadLine());
+
+                            sucursal.id = id;
+                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
+                            if (sucursalEncontrada != null)
+                            {
+                                Console.WriteLine($"Sucursal: {sucursalEncontrada.descripcion}");
+                                Console.WriteLine("Ingrese los nuevos datos:");
+                                Console.WriteLine("Dirección:");
+                                sucursal.direccion = Console.ReadLine();
+                                Console.WriteLine("Teléfono:");
+                                sucursal.telefono = Console.ReadLine();
+                                Console.WriteLine("WhatsApp:");
+                                sucursal.whatsapp = Console.ReadLine();
+                                Console.WriteLine("Correo electrónico:");
+                                sucursal.mail = Console.ReadLine();
+                                Console.WriteLine("Estado:");
+                                sucursal.estado = Console.ReadLine();
+                            }
+
+                            sucursalService.actualizar(sucursal);
+
+                            Console.WriteLine("La sucursal ha sido actualizada correctamente");
+                        }
+                        if (opciones == "4")
+                        {
+                            Console.WriteLine("Ingrese el ID de la sucursal a buscar:");
+                            int id = int.Parse(Console.ReadLine());
+                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
+                            if (sucursalEncontrada != null)
+                            {
+                                Console.WriteLine("\n Sucursal encontrada:\n");
+                                Console.WriteLine($"ID: {sucursalEncontrada.id}");
+                                Console.WriteLine($"Descripción: {sucursalEncontrada.descripcion}");
+                                Console.WriteLine($"Dirección: {sucursalEncontrada.direccion}");
+                                Console.WriteLine($"Teléfono: {sucursalEncontrada.telefono}");
+                                Console.WriteLine($"WhatsApp: {sucursalEncontrada.whatsapp}");
+                                Console.WriteLine($"Correo electrónico: {sucursalEncontrada.mail}");
+                                Console.WriteLine($"Estado: {sucursalEncontrada.estado}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontró ninguna sucursal con ese ID.");
+                            }
+                        }
+                        if (opciones == "5")
+                        {
+                            Console.WriteLine("\n Lista de Sucursales: \n");
+                            sucursalService.GetAll().ToList().ForEach(sucursal =>
+                                Console.WriteLine(
+                                    $" ID: {sucursal.id} \n " +
+                                    $"Descripción: {sucursal.descripcion} \n " +
+                                    $"Dirección: {sucursal.direccion} \n " +
+                                    $"Teléfono: {sucursal.telefono} \n " +
+                                    $"WhatsApp: {sucursal.whatsapp} \n " +
+                                    $"Correo electrónico: {sucursal.mail} \n " +
+                                    $"Estado: {sucursal.estado} \n "
                                 )
                             );
                         }
@@ -312,7 +414,7 @@ namespace Consola
                     return result;
                 }
                 break;
-                
+
 
 
 
@@ -321,50 +423,3 @@ namespace Consola
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

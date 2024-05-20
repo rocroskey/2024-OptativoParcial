@@ -64,7 +64,7 @@ namespace Services.Servicios
             return facturaRepository.select(nro_factura);
         }
 
-        public List<FacturaModel> listado()
+        public IEnumerable<FacturaModel> GetAll()
         {
             return facturaRepository.list();
         }
@@ -92,7 +92,7 @@ namespace Services.Servicios
         public bool validarfactura(FacturaModel factura)
         {
             if (factura == null)
-                if (!Regex.IsMatch(factura.nro_factura, @"^\d{3}-\d{3}-\d{4}-\d{6}$"))
+                if (!Regex.IsMatch(factura.nro_factura, @"^\d{3}-\d{3}-\d{6}$"))
                     return false;
             if (factura.total <= 0 || factura.total_iva5 <= 0 || factura.total_iva10 <= 0 || factura.total_iva <= 0)
                 return false;
