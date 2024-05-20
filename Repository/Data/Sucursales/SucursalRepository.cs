@@ -30,21 +30,18 @@ namespace Repository.Data.Sucursales
             }
         }
 
-        public bool delete(int Id)
+        public bool delete(int id)
         {
             try
             {
-                _connection.Execute("DELETE FROM sucursal WHERE id = @id", new { id = Id });
+                _connection.Execute($"DELETE FROM sucursal WHERE id = {id}");
                 return true;
             }
             catch (Exception ex)
             {
                 throw new Exception("Error al eliminar la sucursal", ex);
             }
-            finally
-            {
-                _connection.Close();
-            }
+            
         }
 
         public bool update(SucursalModel sucursalModel)
@@ -71,16 +68,11 @@ namespace Repository.Data.Sucursales
         {
             try
             {
-                return _connection.QuerySingleOrDefault<SucursalModel>(
-                    "SELECT * FROM sucursal WHERE id = @Id", new { Id = id });
+                return _connection.QuerySingleOrDefault<SucursalModel>($"SELECT * FROM sucursal WHERE id = {id}");
             }
             catch (Exception ex)
             {
                 throw new Exception("Error al seleccionar la sucursal", ex);
-            }
-            finally
-            {
-                _connection.Close();
             }
         }
 

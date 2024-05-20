@@ -17,27 +17,17 @@ namespace Services.Servicios
         }
         public bool agregar(SucursalModel sucursal)
         {
-            if (validarDatos(sucursal))
-            {
-                return sucursalRepository.add(sucursal);
-
-            }
-            else
-            {
-                Console.WriteLine("Favor corroborar e ingresar correctamente los datos.");
-
-                throw new Exception("Favor corroborar e ingresar correctamente los datos.");
-            }
+            return validarDatos(sucursal) ? sucursalRepository.add(sucursal) : throw new Exception("Error en la validacion de datos. Favor verificar");
         }
 
-        public bool actualizar(SucursalModel sucursal)
+        public bool actualizar(SucursalModel sucursalModel)
         {
-            return sucursalRepository.update(sucursal);
+            return validarDatos(sucursalModel) ? sucursalRepository.update(sucursalModel) : throw new Exception("Error en la validacion de datos. Favor verificar");
         }
 
         public bool eliminar(int id)
         {
-            return sucursalRepository.delete(id);
+            return id > 0 ? sucursalRepository.delete(id) :false;
         }
 
         public SucursalModel seleccionar(int id )
