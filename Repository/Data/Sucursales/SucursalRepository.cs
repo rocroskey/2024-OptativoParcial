@@ -91,5 +91,17 @@ namespace Repository.Data.Sucursales
                 _connection.Close();
             }
         }
+
+        public int ObtenerIdSucursalPorDescripcion(string descripcion_sucursal)
+        {
+            try
+            {
+                return _connection.QuerySingleOrDefault<int>("SELECT id FROM sucursal WHERE descripcion = @Descripcion",new { Descripcion = descripcion_sucursal });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el ID de la sucursal por descripción", ex);
+            }
+        }
     }
 }

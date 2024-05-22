@@ -12,6 +12,7 @@ namespace Repository.Data.Facturas
 
         public int id_factura { get; set; }
         public int id_cliente { get; set; }
+        public int id_sucursal { get; set; }
         public string nro_factura { get; set; }
         public DateTime fecha_hora { get; set; }
         public double total { get; set; }

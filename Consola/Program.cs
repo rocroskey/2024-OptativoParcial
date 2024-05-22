@@ -73,6 +73,7 @@ namespace Consola
                             factura.sucursal = Console.ReadLine();
 
 
+
                             facturaService.agregar(factura);
 
                             Console.WriteLine("La Factura ha sido registrada  correctamente.");
@@ -120,6 +121,9 @@ namespace Consola
 
                             Console.Write("Sucursal: ");
                             factura.sucursal = Console.ReadLine();
+
+
+
 
 
                             facturaService.actualizar(factura, actualizarfactura);

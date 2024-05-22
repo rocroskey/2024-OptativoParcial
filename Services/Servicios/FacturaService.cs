@@ -1,5 +1,6 @@
 ﻿using Repository.Data.Clientes;
 using Repository.Data.Facturas;
+using Repository.Data.Sucursales;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -15,19 +16,23 @@ namespace Services.Servicios
     {
         private FacturaRepository facturaRepository;
         private ClienteRepository clienteRepository;
+        private SucursalRepository sucursalRepository;
 
         public FacturaService(string connectionString)
         {
             facturaRepository = new FacturaRepository(connectionString);
             clienteRepository = new ClienteRepository(connectionString);
+            sucursalRepository = new SucursalRepository(connectionString);
         }
 
         public bool agregar(FacturaModel factura )
         {
             int idCliente = clienteRepository.ObtenerIdClientePorDocumento(factura.documento_cliente);
+            int idSucursal = sucursalRepository.ObtenerIdSucursalPorDescripcion(factura.sucursal);
 
 
             factura.id_cliente = idCliente;
+            factura.id_sucursal = idSucursal;
 
             if (validarfactura(factura))
             {

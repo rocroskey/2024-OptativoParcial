@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
+using Npgsql;
 using Repository.Data.Sucursales;
 
 namespace Services.Servicios
@@ -10,10 +13,12 @@ namespace Services.Servicios
     public class SucursalService
     {
         private SucursalRepository sucursalRepository;
+        private readonly string _connectionString;
 
         public SucursalService(string connectionString)
         {
             sucursalRepository = new SucursalRepository(connectionString);
+            _connectionString = connectionString;
         }
         public bool agregar(SucursalModel sucursal)
         {

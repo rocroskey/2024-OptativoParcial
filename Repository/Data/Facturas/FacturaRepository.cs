@@ -19,8 +19,8 @@ namespace Repository.Data.Facturas
         {
             try
             {
-                _connection.Execute("INSERT INTO factura(id_cliente, nro_factura, fecha_hora, total, total_iva5, total_iva10, total_iva, total_letras, sucursal) " +
-                    $"Values(@id_cliente, @nro_factura, @fecha_hora, @total, @total_iva5, @total_iva10, @total_iva, @total_letras, @sucursal)", facturaModel);
+                _connection.Execute("INSERT INTO factura(id_cliente, nro_factura, fecha_hora, total, total_iva5, total_iva10, total_iva, total_letras, sucursal, id_sucursal) " +
+                    $"Values(@id_cliente, @nro_factura, @fecha_hora, @total, @total_iva5, @total_iva10, @total_iva, @total_letras,@sucursal, @id_sucursal)", facturaModel);
                 _connection.Close();
                 return true;
             }
