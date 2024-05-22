@@ -4,6 +4,13 @@ using Repository.Data.Sucursales;
 using Services.Servicios;
 using System.Globalization;
 
+
+/*
+ 
+Modificaciones hechas para la creacion del menu de Sucursales, como tambien la vinculacion de las facturas a las sucursales creadas
+
+ */
+
 namespace Consola
 {
     class Program
@@ -72,12 +79,21 @@ namespace Consola
                             Console.Write("Sucursal: ");
                             factura.sucursal = Console.ReadLine();
 
-
-
                             facturaService.agregar(factura);
 
                             Console.WriteLine("La Factura ha sido registrada  correctamente.");
                         }
+
+
+                            /*
+                             
+                            En la Base de Datos ya se encuentran las cargas realizadas con las sucursales relacionadas
+                            es decir, las facturas se asocian a una sucursal al ingresar la descipcion de la misma, momentaneamente
+                            son limitadas las cargas de facturas en una sucursal.
+                             
+                            */
+
+
                         if (opcionf == "2")
                         {
                             Console.WriteLine("Ingrese el Nro. de Factura a Eliminar");
@@ -427,3 +443,4 @@ namespace Consola
         }
     }
 }
+
