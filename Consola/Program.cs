@@ -9,6 +9,12 @@ using System.Globalization;
  
 Modificaciones hechas para la creacion del menu de Sucursales, como tambien la vinculacion de las facturas a las sucursales creadas
 
+La parte del codigo de prueba se encuentra al final.
+En ella ya se crearon metodos que poseen datos predefinidos los cuales crean una sucursal con un ID ya establecido (5)
+para luego ser ingresado, actualizado o eliminado al ejecutar el metodo de ingresar, actualizar o eliminar respectivamente.
+
+Los metodos de buscar o listar funcionan con todas las sucursales.
+
  */
 
 namespace Consola
@@ -24,6 +30,8 @@ namespace Consola
             SucursalService sucursalService = new SucursalService(connectionString);
 
             Console.WriteLine("Bienvenido");
+
+
 
             bool continuar = true;
 
@@ -85,13 +93,10 @@ namespace Consola
                         }
 
 
-                            /*
-                             
-                            En la Base de Datos ya se encuentran las cargas realizadas con las sucursales relacionadas
-                            es decir, las facturas se asocian a una sucursal al ingresar la descipcion de la misma, momentaneamente
-                            son limitadas las cargas de facturas en una sucursal.
-                             
-                            */
+                        /*En la Base de Datos ya se encuentran las cargas realizadas con las sucursales relacionadas
+                        es decir, las facturas se asocian a una sucursal al ingresar la descipcion de la misma, momentaneamente
+                        son limitadas las cargas de facturas en una sucursal.*/
+
 
 
                         if (opcionf == "2")
@@ -436,11 +441,112 @@ namespace Consola
                 break;
 
 
-
-
-
             }
+
+
+            /*
+
+            Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
+                        string opciones = Console.ReadLine();
+
+                        if (opciones == "0")
+                        {
+                            
+                        }
+                        if (opciones == "1")
+                        {
+                            var sucursal = new SucursalModel();
+                            Console.WriteLine("Ingrese los datos de la sucursal: ");
+                            sucursal.descripcion = "Don vito";
+                            sucursal.direccion = "Avda. Rca.Argentina";
+                            sucursal.telefono = "0982451245";
+                            sucursal.whatsapp = "0982451245";
+                            sucursal.mail = "empadonvito@gmail.com";
+                            sucursal.estado = "Activo";
+
+                            sucursalService.agregar(sucursal);
+
+                            Console.WriteLine("La sucursal ha sido registrada correctamente.");
+                        }
+            
+                        if (opciones == "2")
+                        {
+                            Console.WriteLine("Ingrese el ID de la sucursal a eliminar:");
+                            int id = 5;
+
+                            sucursalService.eliminar(id);
+
+                            Console.WriteLine("La sucursal ha sido eliminada correctamente");
+                        }
+                        if (opciones == "3")
+                        {
+                            var sucursal = new SucursalModel();
+
+                            Console.WriteLine("Ingrese el ID de la sucursal a actualizar:");
+                            int id = 5;
+
+                            sucursal.id = id;
+                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
+                            if (sucursalEncontrada != null)
+                            {
+                                Console.WriteLine($"Sucursal: {sucursalEncontrada.descripcion}");
+                                Console.WriteLine("Ingrese los nuevos datos:");
+                                Console.WriteLine("Dirección:");
+                                sucursal.direccion = "Avda. Rca. Argentina 2140";
+                                Console.WriteLine("Teléfono:");
+                                sucursal.telefono = "0214572000";
+                                Console.WriteLine("WhatsApp:");
+                                sucursal.whatsapp = "0985415263";
+                                Console.WriteLine("Correo electrónico:");
+                                sucursal.mail = "Donvitorest@gmail.com";
+                                Console.WriteLine("Estado:");
+                                sucursal.estado = "Activo";
+                            }
+
+                            sucursalService.actualizar(sucursal);
+
+                            Console.WriteLine("La sucursal ha sido actualizada correctamente");
+                        }
+                        if (opciones == "4")
+                        {
+                            Console.WriteLine("Ingrese el ID de la sucursal a buscar:");
+                            int id = int.Parse(Console.ReadLine());
+                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
+                            if (sucursalEncontrada != null)
+                            {
+                                Console.WriteLine("\n Sucursal encontrada:\n");
+                                Console.WriteLine($"ID: {sucursalEncontrada.id}");
+                                Console.WriteLine($"Descripción: {sucursalEncontrada.descripcion}");
+                                Console.WriteLine($"Dirección: {sucursalEncontrada.direccion}");
+                                Console.WriteLine($"Teléfono: {sucursalEncontrada.telefono}");
+                                Console.WriteLine($"WhatsApp: {sucursalEncontrada.whatsapp}");
+                                Console.WriteLine($"Correo electrónico: {sucursalEncontrada.mail}");
+                                Console.WriteLine($"Estado: {sucursalEncontrada.estado}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontró ninguna sucursal con ese ID.");
+                            }
+                        }
+                        if (opciones == "5")
+                        {
+                            Console.WriteLine("\n Lista de Sucursales: \n");
+                            sucursalService.GetAll().ToList().ForEach(sucursal =>
+                                Console.WriteLine(
+                                    $" ID: {sucursal.id} \n " +
+                                    $"Descripción: {sucursal.descripcion} \n " +
+                                    $"Dirección: {sucursal.direccion} \n " +
+                                    $"Teléfono: {sucursal.telefono} \n " +
+                                    $"WhatsApp: {sucursal.whatsapp} \n " +
+                                    $"Correo electrónico: {sucursal.mail} \n " +
+                                    $"Estado: {sucursal.estado} \n "
+                                )
+                            );
+                        }*/
         }
+
     }
+
 }
+
 
