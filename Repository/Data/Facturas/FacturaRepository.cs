@@ -15,18 +15,22 @@ namespace Repository.Data.Facturas
             _connection = new ConnectionDB(connectionString).OpenConnection();
         }
 
-        public bool add(FacturaModel facturaModel)
+        public int add(FacturaModel facturaModel)
         {
             try
             {
-                _connection.Execute("INSERT INTO factura(id_cliente, nro_factura, fecha_hora, total, total_iva5, total_iva10, total_iva, total_letras, sucursal, id_sucursal) " +
-                    $"Values(@id_cliente, @nro_factura, @fecha_hora, @total, @total_iva5, @total_iva10, @total_iva, @total_letras,@sucursal, @id_sucursal)", facturaModel);
-                _connection.Close();
-                return true;
+                string query = @"
+                    INSERT INTO factura(id_cliente, nro_factura, fecha_hora, total, total_iva5, total_iva10, total_iva, total_letras, sucursal, id_sucursal)
+                    VALUES(@id_cliente, @nro_factura, @fecha_hora, @total, @total_iva5, @total_iva10, @total_iva, @total_letras, @sucursal, @id_sucursal)
+                    RETURNING id_factura"; // Utiliza RETURNING para obtener el ID generado
+
+                int idFactura = _connection.Query<int>(query, facturaModel).Single();
+
+                return idFactura;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception("Error al agregar la factura", ex);
             }
         }
 

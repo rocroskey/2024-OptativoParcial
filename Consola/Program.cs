@@ -1,21 +1,11 @@
 ﻿using Repository.Data.Clientes;
+using Repository.Data.DetallesFacturas;
 using Repository.Data.Facturas;
+using Repository.Data.Productos;
 using Repository.Data.Sucursales;
 using Services.Servicios;
 using System.Globalization;
 
-
-/*
- 
-Modificaciones hechas para la creacion del menu de Sucursales, como tambien la vinculacion de las facturas a las sucursales creadas
-
-La parte del codigo de prueba se encuentra al final.
-En ella ya se crearon metodos que poseen datos predefinidos los cuales crean una sucursal con un ID ya establecido (5)
-para luego ser ingresado, actualizado o eliminado al ejecutar el metodo de ingresar, actualizar o eliminar respectivamente.
-
-Los metodos de buscar o listar funcionan con todas las sucursales.
-
- */
 
 namespace Consola
 {
@@ -25,9 +15,12 @@ namespace Consola
         {
             string connectionString = "Host=localhost;Username=postgres;Password=rc12345;Database=optativo";
 
+            ProductoRepository productoRepository = new ProductoRepository(connectionString);
             ClienteService clienteService = new ClienteService(connectionString);
             FacturaService facturaService = new FacturaService(connectionString);
             SucursalService sucursalService = new SucursalService(connectionString);
+            ProductoService productoService = new ProductoService(connectionString);
+            DetalleFacturaService detalleFacturaService = new DetalleFacturaService(connectionString);
 
             Console.WriteLine("Bienvenido");
 
@@ -42,6 +35,8 @@ namespace Consola
                 Console.WriteLine("C - Para Clientes");
                 Console.WriteLine("F - Para Facturas");
                 Console.WriteLine("S - Para Sucursales");
+                Console.WriteLine("P - Para Productos");
+                Console.WriteLine("D - Para Detalles de Factura");
 
                 Console.Write("Opcion: ");
                 string menu = Console.ReadLine().ToUpper();
@@ -89,14 +84,48 @@ namespace Consola
 
                             facturaService.agregar(factura);
 
-                            Console.WriteLine("La Factura ha sido registrada  correctamente.");
+                            // Buscar la factura por su número
+                            FacturaModel facturaCreada = facturaService.seleccionar(factura.nro_factura);
+
+                            if (facturaCreada != null)
+                            {
+                                int idFactura = facturaCreada.id_factura;
+
+                                bool capturarDetalles = true;
+                                while (capturarDetalles)
+                                {
+                                    var detallesFactura = new DetallesFacturaModel();
+
+                                    Console.Write("ID Producto: ");
+                                    detallesFactura.id_producto = int.Parse(Console.ReadLine());
+
+                                    Console.Write("Cantidad Producto: ");
+                                    detallesFactura.cantidad_producto = double.Parse(Console.ReadLine());
+
+                                    double precioProducto = productoService.ObtenerPrecioVenta(detallesFactura.id_producto);
+                                    detallesFactura.subtotal = detallesFactura.cantidad_producto * precioProducto;
+
+                                    detallesFactura.id_factura = idFactura; // Asignar el ID de la factura
+
+                                    detalleFacturaService.agregar(detallesFactura);
+
+                                    Console.WriteLine("Detalle de factura agregado.");
+
+                                    Console.Write("¿Desea agregar otro detalle de factura? (S/N): ");
+                                    string respuesta = Console.ReadLine().ToUpper();
+                                    if (respuesta != "S")
+                                    {
+                                        capturarDetalles = false;
+                                    }
+                                }
+
+                                Console.WriteLine("La Factura ha sido registrada correctamente.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontró ninguna factura con ese número.");
+                            }
                         }
-
-
-                        /*En la Base de Datos ya se encuentran las cargas realizadas con las sucursales relacionadas
-                        es decir, las facturas se asocian a una sucursal al ingresar la descipcion de la misma, momentaneamente
-                        son limitadas las cargas de facturas en una sucursal.*/
-
 
 
                         if (opcionf == "2")
@@ -108,6 +137,7 @@ namespace Consola
 
                             Console.WriteLine("La Factura ha sido eliminada correctamente");
                         }
+
                         if (opcionf == "3")
                         {
                             var factura = new FacturaModel();
@@ -115,41 +145,46 @@ namespace Consola
                             Console.WriteLine("Ingrese el Numero de la factura a actualizar:");
                             string actualizarfactura = Console.ReadLine();
 
-                            factura.nro_factura = actualizarfactura;
+                            FacturaModel facturaExistente = facturaService.seleccionar(actualizarfactura);
+                            if (facturaExistente == null)
+                            {
+                                Console.WriteLine($"No se encontró ninguna factura con el número {actualizarfactura}.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Factura encontrada. Ingrese los nuevos datos:");
 
-                            Console.WriteLine("Ingrese los datos de la factura:");
+                                Console.Write("Número de Factura: ");
+                                facturaExistente.nro_factura = Console.ReadLine();
 
-                            Console.Write("Número de Factura: ");
-                            factura.nro_factura = Console.ReadLine();
+                                Console.Write("Fecha y Hora (YYYY-MM-DD HH:mm:ss): ");
+                                facturaExistente.fecha_hora = DateTime.Parse(Console.ReadLine());
 
-                            Console.Write("Fecha y Hora (YYYY-MM-DD HH:mm:ss): ");
-                            factura.fecha_hora = DateTime.Parse(Console.ReadLine());
+                                Console.Write("Total: ");
+                                facturaExistente.total = double.Parse(Console.ReadLine());
 
-                            Console.Write("Total: ");
-                            factura.total = double.Parse(Console.ReadLine());
+                                Console.Write("Total IVA 5%: ");
+                                facturaExistente.total_iva5 = double.Parse(Console.ReadLine());
 
-                            Console.Write("Total IVA 5%: ");
-                            factura.total_iva5 = double.Parse(Console.ReadLine());
+                                Console.Write("Total IVA 10%: ");
+                                facturaExistente.total_iva10 = double.Parse(Console.ReadLine());
 
-                            Console.Write("Total IVA 10%: ");
-                            factura.total_iva10 = double.Parse(Console.ReadLine());
+                                Console.Write("Total IVA: ");
+                                facturaExistente.total_iva = double.Parse(Console.ReadLine());
 
-                            Console.Write("Total IVA: ");
-                            factura.total_iva = double.Parse(Console.ReadLine());
+                                Console.Write("Total en letras: ");
+                                facturaExistente.total_letras = Console.ReadLine();
 
-                            Console.Write("Total en letras: ");
-                            factura.total_letras = Console.ReadLine();
+                                Console.Write("Sucursal: ");
+                                facturaExistente.sucursal = Console.ReadLine();
 
-                            Console.Write("Sucursal: ");
-                            factura.sucursal = Console.ReadLine();
+                                // Actualizar la factura en la base de datos
+                                facturaService.actualizar(facturaExistente, actualizarfactura);
 
+                                
 
-
-
-
-                            facturaService.actualizar(factura, actualizarfactura);
-
-                            Console.WriteLine("La Factura ha sido actualizadoa correctamente");
+                                Console.WriteLine("La Factura ha sido actualizada correctamente");
+                            }
 
                         }
                         if (opcionf == "4")
@@ -174,27 +209,63 @@ namespace Consola
                             {
                                 Console.WriteLine("No se encontró ninguna factura con ese número.");
                             }
+                            var detallesFactura = detalleFacturaService.ObtenerDetallesPorIdFactura(facturaEncontrada.id_factura).ToList();
+
+                            if (detallesFactura.Any())
+                            {
+                                Console.WriteLine("\nDetalles de la Factura:");
+                                foreach (var detalle in detallesFactura)
+                                {
+                                    string descripcionProducto = productoRepository.ObtenerDescripcionPorId(detalle.id_producto);
+                                    Console.WriteLine($"ID Producto: {detalle.id_producto}, Descripcion: {descripcionProducto}, Cantidad: {detalle.cantidad_producto}, Subtotal: {detalle.subtotal}");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontraron detalles para esta factura.");
+                            }
                         }
 
                         if (opcionf == "5")
                         {
 
                             Console.WriteLine("\n Listado de todas las facturas:\n ");
-                            facturaService.GetAll().ToList().ForEach(factura =>
-                            Console.WriteLine(
-                            $" Nro Factura: {factura.nro_factura} \n " +
-                            $"Fecha y Hora: {factura.fecha_hora} \n " +
-                            $"Total: {factura.total} \n " +
-                            $"Total IVA 5%: {factura.total_iva5} \n " +
-                            $"Total IVA 10%: {factura.total_iva10} \n " +
-                            $"Total IVA: {factura.total_iva} \n " +
-                            $"Total (Letras): {factura.total_letras} \n " +
-                            $"Sucursal: {factura.sucursal} \n "
-                            )
-                        );
+                            var facturas = facturaService.GetAll().ToList();
+
+                            foreach (var factura in facturas)
+                            {
+                                Console.WriteLine($" Nro Factura: {factura.nro_factura} \n " +
+                                                  $"Fecha y Hora: {factura.fecha_hora} \n " +
+                                                  $"Total: {factura.total} \n " +
+                                                  $"Total IVA 5%: {factura.total_iva5} \n " +
+                                                  $"Total IVA 10%: {factura.total_iva10} \n " +
+                                                  $"Total IVA: {factura.total_iva} \n " +
+                                                  $"Total (Letras): {factura.total_letras} \n " +
+                                                  $"Sucursal: {factura.sucursal} \n ");
+
+                                // Obtener detalles de la factura
+                                var detallesFactura = detalleFacturaService.ObtenerDetallesPorIdFactura(factura.id_factura).ToList();
+
+                                if (detallesFactura.Any())
+                                {
+                                    Console.WriteLine("Detalles de la Factura:");
+                                    foreach (var detalle in detallesFactura)
+                                    {
+                                        // Obtener la descripción del producto utilizando ProductoRepository directamente
+                                        string descripcionProducto = productoRepository.ObtenerDescripcionPorId(detalle.id_producto);
+
+                                        Console.WriteLine($"  ID Producto: {detalle.id_producto} - Descripción: {descripcionProducto}, " +
+                                                          $"Cantidad: {detalle.cantidad_producto}, Subtotal: {detalle.subtotal}");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("No se encontraron detalles para esta factura.");
+                                }
+
+                                Console.WriteLine();
+                            }
                         }
-
-
 
                         break;
 
@@ -403,6 +474,217 @@ namespace Consola
                         }
                         break;
 
+                    case "P":
+                        Console.WriteLine("\nMenu de Productos \n Seleccione una de las siguientes opciones");
+                        Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
+                        string opcionp = Console.ReadLine();
+
+                        if (opcionp == "0")
+                        {
+                            break;
+                        }
+                        if (opcionp == "1")
+                        {
+                            var producto = new ProductoModel();
+                            Console.WriteLine("Ingrese los datos del Producto: ");
+                            producto.descripcion = ReadInput("Descripción: ");
+                            producto.cantidad_minima = double.Parse(ReadInput("Cantidad Minima: "));
+                            producto.cantidad_stock = double.Parse(ReadInput("Cantidad en Stock: "));
+                            producto.precio_compra = int.Parse(ReadInput("Precio de Compra: "));
+                            producto.precio_venta = int.Parse(ReadInput("Precio de Venta: "));
+                            producto.categoria = ReadInput("Categoria: ");
+                            producto.marca = ReadInput("Marca: ");
+                            producto.estado = ReadInput("Estado: ");
+
+                            productoService.agregar(producto);
+
+                            Console.WriteLine("El producto ha sido registrado correctamente.");
+                        }
+                        if (opcionp == "2")
+                        {
+                            Console.Write("Ingrese el ID del producto a eliminar: ");
+                            int idProducto = int.Parse(Console.ReadLine());
+
+                            productoService.eliminar(idProducto);
+
+                            Console.WriteLine("El producto ha sido eliminado correctamente.");
+                        }
+
+                        if (opcionp == "3")
+                        {
+                            var producto = new ProductoModel();
+
+                            Console.Write("Ingrese el ID del producto a actualizar: ");
+                            int id_producto = int.Parse(Console.ReadLine());
+
+                            producto.id = id_producto;
+
+                            Console.Write("Descripción: ");
+                            producto.descripcion = Console.ReadLine();
+
+                            Console.Write("Cantidad mínima: ");
+                            producto.cantidad_minima = double.Parse(Console.ReadLine());
+
+                            Console.Write("Cantidad en stock: ");
+                            producto.cantidad_stock = double.Parse(Console.ReadLine());
+
+                            Console.Write("Precio de compra: ");
+                            producto.precio_compra = int.Parse(Console.ReadLine());
+
+                            Console.Write("Precio de venta: ");
+                            producto.precio_venta = int.Parse(Console.ReadLine());
+
+                            Console.Write("Categoría: ");
+                            producto.categoria = Console.ReadLine();
+
+                            Console.Write("Marca: ");
+                            producto.marca = Console.ReadLine();
+
+                            Console.Write("Estado: ");
+                            producto.estado = Console.ReadLine();
+
+                            productoService.actualizar(producto);
+
+                            Console.WriteLine("El producto ha sido actualizado correctamente.");
+                        }
+
+                        if (opcionp == "4")
+                        {
+                            Console.Write("Ingrese el ID del producto a buscar: ");
+                            int idProducto = int.Parse(Console.ReadLine());
+
+                            ProductoModel productoEncontrado = productoService.seleccionar(idProducto);
+
+                            if (productoEncontrado != null)
+                            {
+                                Console.WriteLine("\nProducto encontrado:\n");
+                                Console.WriteLine($"ID: {productoEncontrado.id}");
+                                Console.WriteLine($"Descripción: {productoEncontrado.descripcion}");
+                                Console.WriteLine($"Cantidad mínima: {productoEncontrado.cantidad_minima}");
+                                Console.WriteLine($"Cantidad en stock: {productoEncontrado.cantidad_stock}");
+                                Console.WriteLine($"Precio de compra: {productoEncontrado.precio_compra}");
+                                Console.WriteLine($"Precio de venta: {productoEncontrado.precio_venta}");
+                                Console.WriteLine($"Categoría: {productoEncontrado.categoria}");
+                                Console.WriteLine($"Marca: {productoEncontrado.marca}");
+                                Console.WriteLine($"Estado: {productoEncontrado.estado}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontró ningún producto con ese ID.");
+                            }
+                        }
+
+                        if (opcionp == "5")
+                        {
+                            Console.WriteLine("\nListado de todos los productos:\n");
+                            productoService.GetAll().ToList().ForEach(producto =>
+                                Console.WriteLine(
+                                    $"Descripción: {producto.descripcion} \n" +
+                                    $"Cantidad mínima: {producto.cantidad_minima} \n" +
+                                    $"Cantidad en stock: {producto.cantidad_stock} \n" +
+                                    $"Precio de compra: {producto.precio_compra} \n" +
+                                    $"Precio de venta: {producto.precio_venta} \n" +
+                                    $"Categoría: {producto.categoria} \n" +
+                                    $"Marca: {producto.marca} \n" +
+                                    $"Estado: {producto.estado} \n"
+                                )
+                            );
+                        }
+                        break;
+
+                        case "D":
+                        Console.WriteLine("\nMenu de Detalles de Factura \n Seleccione una de las siguientes opciones");
+                        Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
+                        string opciond = Console.ReadLine();
+
+                        if (opciond == "0")
+                        {
+                            break;
+                        }
+                        if (opciond == "1")
+                        {
+                            var detallesFactura = new DetallesFacturaModel();
+                            Console.WriteLine("Ingrese los datos: ");
+                            detallesFactura.id_factura= int.Parse(ReadInput("ID de la factura: "));
+                            detallesFactura.id_producto = int.Parse(ReadInput("ID del Producto: "));
+                            detallesFactura.cantidad_producto = int.Parse(ReadInput("Cantidad de Producto "));
+                            detallesFactura.subtotal = double.Parse(ReadInput("Subtotal: "));
+
+
+                            detalleFacturaService.agregar(detallesFactura);
+
+                            Console.WriteLine("Los Datos han sido registrados correctamente.");
+                        }
+                        if (opciond == "2")
+                        {
+                            Console.Write("Ingrese el ID a eliminar: ");
+                            int id = int.Parse(Console.ReadLine());
+
+                            detalleFacturaService.eliminar(id);
+
+                            Console.WriteLine("Los datos han sido eliminados correctamente.");
+                        }
+
+                        if (opciond == "3")
+                        {
+                            var detallesFactura = new DetallesFacturaModel();
+
+                            Console.Write("Ingrese el ID a actualizar: ");
+                            int id = int.Parse(Console.ReadLine());
+
+                            detallesFactura.id = id;
+
+                            Console.Write("ID de la Factura: ");
+                            detallesFactura.id_factura   = int.Parse(Console.ReadLine());
+
+                            Console.Write("ID del Producto: ");
+                            detallesFactura.id_producto = int.Parse(Console.ReadLine());
+
+                            Console.Write("Cantidad de Producto: ");
+                            detallesFactura.cantidad_producto = double.Parse(Console.ReadLine());
+
+                            Console.Write("Subtotal: ");
+                            detallesFactura.subtotal = int.Parse(Console.ReadLine());
+
+                            Console.WriteLine("Los datos han sido actualizados correctamente.");
+                        }
+
+                        if (opciond == "4")
+                        {
+                            Console.Write("Ingrese el ID del detalle a buscar: ");
+                            int id = int.Parse(Console.ReadLine());
+
+                            DetallesFacturaModel detalle_encontrado = detalleFacturaService.seleccionar(id);
+
+                            if (detalle_encontrado != null)
+                            {
+                                Console.WriteLine("\nDetalle encontrado:\n");
+                                Console.WriteLine($"ID del Detalle: {detalle_encontrado.id}");
+                                Console.WriteLine($"ID de la Factura: {detalle_encontrado.id_factura}");
+                                Console.WriteLine($"ID del Prodcuto: {detalle_encontrado.id_producto}");
+                                Console.WriteLine($"Cantidad de Producto: {detalle_encontrado.cantidad_producto}");
+                                Console.WriteLine($"Subtotal: {detalle_encontrado.subtotal}");
+                            }
+                            else
+                            {
+                                Console.WriteLine("No se encontraron datos con ese ID.");
+                            }
+                        }
+
+                        if (opciond == "5")
+                        {
+                            Console.WriteLine("\nListado de todos los Detalles de Facturacion:\n");
+                            detalleFacturaService.GetAll().ToList().ForEach(detalleFactura =>
+                                Console.WriteLine(
+                                    $"ID de la Factura: {detalleFactura.id_factura} \n" +
+                                    $"ID del Producto: {detalleFactura.id_producto} \n" +
+                                    $"Cantidad de Producto: {detalleFactura.cantidad_producto} \n" +
+                                    $"Subtotal: {detalleFactura.subtotal} \n"
+                                )
+                            );
+                        }
+                        break;
+
                     default:
                         Console.WriteLine("Opción no válida");
                         break;
@@ -443,106 +725,6 @@ namespace Consola
 
             }
 
-
-            /*
-
-            Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
-                        string opciones = Console.ReadLine();
-
-                        if (opciones == "0")
-                        {
-                            
-                        }
-                        if (opciones == "1")
-                        {
-                            var sucursal = new SucursalModel();
-                            Console.WriteLine("Ingrese los datos de la sucursal: ");
-                            sucursal.descripcion = "Don vito";
-                            sucursal.direccion = "Avda. Rca.Argentina";
-                            sucursal.telefono = "0982451245";
-                            sucursal.whatsapp = "0982451245";
-                            sucursal.mail = "empadonvito@gmail.com";
-                            sucursal.estado = "Activo";
-
-                            sucursalService.agregar(sucursal);
-
-                            Console.WriteLine("La sucursal ha sido registrada correctamente.");
-                        }
-            
-                        if (opciones == "2")
-                        {
-                            Console.WriteLine("Ingrese el ID de la sucursal a eliminar:");
-                            int id = 5;
-
-                            sucursalService.eliminar(id);
-
-                            Console.WriteLine("La sucursal ha sido eliminada correctamente");
-                        }
-                        if (opciones == "3")
-                        {
-                            var sucursal = new SucursalModel();
-
-                            Console.WriteLine("Ingrese el ID de la sucursal a actualizar:");
-                            int id = 5;
-
-                            sucursal.id = id;
-                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
-                            if (sucursalEncontrada != null)
-                            {
-                                Console.WriteLine($"Sucursal: {sucursalEncontrada.descripcion}");
-                                Console.WriteLine("Ingrese los nuevos datos:");
-                                Console.WriteLine("Dirección:");
-                                sucursal.direccion = "Avda. Rca. Argentina 2140";
-                                Console.WriteLine("Teléfono:");
-                                sucursal.telefono = "0214572000";
-                                Console.WriteLine("WhatsApp:");
-                                sucursal.whatsapp = "0985415263";
-                                Console.WriteLine("Correo electrónico:");
-                                sucursal.mail = "Donvitorest@gmail.com";
-                                Console.WriteLine("Estado:");
-                                sucursal.estado = "Activo";
-                            }
-
-                            sucursalService.actualizar(sucursal);
-
-                            Console.WriteLine("La sucursal ha sido actualizada correctamente");
-                        }
-                        if (opciones == "4")
-                        {
-                            Console.WriteLine("Ingrese el ID de la sucursal a buscar:");
-                            int id = int.Parse(Console.ReadLine());
-                            SucursalModel sucursalEncontrada = sucursalService.seleccionar(id);
-                            if (sucursalEncontrada != null)
-                            {
-                                Console.WriteLine("\n Sucursal encontrada:\n");
-                                Console.WriteLine($"ID: {sucursalEncontrada.id}");
-                                Console.WriteLine($"Descripción: {sucursalEncontrada.descripcion}");
-                                Console.WriteLine($"Dirección: {sucursalEncontrada.direccion}");
-                                Console.WriteLine($"Teléfono: {sucursalEncontrada.telefono}");
-                                Console.WriteLine($"WhatsApp: {sucursalEncontrada.whatsapp}");
-                                Console.WriteLine($"Correo electrónico: {sucursalEncontrada.mail}");
-                                Console.WriteLine($"Estado: {sucursalEncontrada.estado}");
-                            }
-                            else
-                            {
-                                Console.WriteLine("No se encontró ninguna sucursal con ese ID.");
-                            }
-                        }
-                        if (opciones == "5")
-                        {
-                            Console.WriteLine("\n Lista de Sucursales: \n");
-                            sucursalService.GetAll().ToList().ForEach(sucursal =>
-                                Console.WriteLine(
-                                    $" ID: {sucursal.id} \n " +
-                                    $"Descripción: {sucursal.descripcion} \n " +
-                                    $"Dirección: {sucursal.direccion} \n " +
-                                    $"Teléfono: {sucursal.telefono} \n " +
-                                    $"WhatsApp: {sucursal.whatsapp} \n " +
-                                    $"Correo electrónico: {sucursal.mail} \n " +
-                                    $"Estado: {sucursal.estado} \n "
-                                )
-                            );
-                        }*/
         }
 
     }

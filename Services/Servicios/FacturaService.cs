@@ -24,29 +24,33 @@ namespace Services.Servicios
             clienteRepository = new ClienteRepository(connectionString);
             sucursalRepository = new SucursalRepository(connectionString);
         }
-
-        public bool agregar(FacturaModel factura )
+        public int agregar(FacturaModel factura)
         {
-            int idCliente = clienteRepository.ObtenerIdClientePorDocumento(factura.documento_cliente);
-            int idSucursal = sucursalRepository.ObtenerIdSucursalPorDescripcion(factura.sucursal);
-
-
-            factura.id_cliente = idCliente;
-            factura.id_sucursal = idSucursal;
-
-            if (validarfactura(factura))
+            try
             {
-                return facturaRepository.add(factura);
+                int idCliente = clienteRepository.ObtenerIdClientePorDocumento(factura.documento_cliente);
+                int idSucursal = sucursalRepository.ObtenerIdSucursalPorDescripcion(factura.sucursal);
+
+                factura.id_cliente = idCliente;
+                factura.id_sucursal = idSucursal;
+
+                if (validarfactura(factura))
+                {
+                    int idFacturaInsertada = facturaRepository.add(factura);
+                    return idFacturaInsertada;
+                }
+                else
+                {
+                    throw new Exception("Favor corroborar e ingresar correctamente los datos.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Favor corroborar e ingresar correctamente los datos.");
-
-                throw new Exception("Favor corroborar e ingresar correctamente los datos.");
+                throw ex;
             }
         }
 
-        
+
 
 
         public bool eliminar(string nro_factura)
