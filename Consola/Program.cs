@@ -95,6 +95,7 @@ namespace Consola
                                 while (capturarDetalles)
                                 {
                                     var detallesFactura = new DetallesFacturaModel();
+                                    detallesFactura.id_factura = idFactura;
 
                                     Console.Write("ID Producto: ");
                                     detallesFactura.id_producto = int.Parse(Console.ReadLine());
@@ -181,7 +182,7 @@ namespace Consola
                                 // Actualizar la factura en la base de datos
                                 facturaService.actualizar(facturaExistente, actualizarfactura);
 
-                                
+
 
                                 Console.WriteLine("La Factura ha sido actualizada correctamente");
                             }
@@ -592,7 +593,7 @@ namespace Consola
                         }
                         break;
 
-                        case "D":
+                    case "D":
                         Console.WriteLine("\nMenu de Detalles de Factura \n Seleccione una de las siguientes opciones");
                         Console.Write(" Ingrese: \n 1 - Para Ingresar \n 2 - Para Eliminar \n 3 - Para Actualizar \n 4 - Para Buscar \n 5 - Para Listar \n 0 - Para Salir \n Opcion a seleccionar: ");
                         string opciond = Console.ReadLine();
@@ -605,7 +606,7 @@ namespace Consola
                         {
                             var detallesFactura = new DetallesFacturaModel();
                             Console.WriteLine("Ingrese los datos: ");
-                            detallesFactura.id_factura= int.Parse(ReadInput("ID de la factura: "));
+                            detallesFactura.id_factura = int.Parse(ReadInput("ID de la factura: "));
                             detallesFactura.id_producto = int.Parse(ReadInput("ID del Producto: "));
                             detallesFactura.cantidad_producto = int.Parse(ReadInput("Cantidad de Producto "));
                             detallesFactura.subtotal = double.Parse(ReadInput("Subtotal: "));
@@ -635,7 +636,7 @@ namespace Consola
                             detallesFactura.id = id;
 
                             Console.Write("ID de la Factura: ");
-                            detallesFactura.id_factura   = int.Parse(Console.ReadLine());
+                            detallesFactura.id_factura = int.Parse(Console.ReadLine());
 
                             Console.Write("ID del Producto: ");
                             detallesFactura.id_producto = int.Parse(Console.ReadLine());
@@ -647,6 +648,8 @@ namespace Consola
                             detallesFactura.subtotal = int.Parse(Console.ReadLine());
 
                             Console.WriteLine("Los datos han sido actualizados correctamente.");
+
+                            detalleFacturaService.actualizar(detallesFactura);
                         }
 
                         if (opciond == "4")
@@ -662,6 +665,7 @@ namespace Consola
                                 Console.WriteLine($"ID del Detalle: {detalle_encontrado.id}");
                                 Console.WriteLine($"ID de la Factura: {detalle_encontrado.id_factura}");
                                 Console.WriteLine($"ID del Prodcuto: {detalle_encontrado.id_producto}");
+                                Console.WriteLine($"Descripcion del Producto: {productoRepository.ObtenerDescripcionPorId(detalle_encontrado.id_producto)}");
                                 Console.WriteLine($"Cantidad de Producto: {detalle_encontrado.cantidad_producto}");
                                 Console.WriteLine($"Subtotal: {detalle_encontrado.subtotal}");
                             }
@@ -678,6 +682,7 @@ namespace Consola
                                 Console.WriteLine(
                                     $"ID de la Factura: {detalleFactura.id_factura} \n" +
                                     $"ID del Producto: {detalleFactura.id_producto} \n" +
+                                    $"Descripcion del Producto: {productoRepository.ObtenerDescripcionPorId(detalleFactura.id_producto)} \n" +
                                     $"Cantidad de Producto: {detalleFactura.cantidad_producto} \n" +
                                     $"Subtotal: {detalleFactura.subtotal} \n"
                                 )
