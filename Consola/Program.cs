@@ -84,7 +84,7 @@ namespace Consola
 
                             facturaService.agregar(factura);
 
-                            // Buscar la factura por su número
+                       
                             FacturaModel facturaCreada = facturaService.seleccionar(factura.nro_factura);
 
                             if (facturaCreada != null)
@@ -106,7 +106,7 @@ namespace Consola
                                     double precioProducto = productoService.ObtenerPrecioVenta(detallesFactura.id_producto);
                                     detallesFactura.subtotal = detallesFactura.cantidad_producto * precioProducto;
 
-                                    detallesFactura.id_factura = idFactura; // Asignar el ID de la factura
+                                    detallesFactura.id_factura = idFactura;
 
                                     detalleFacturaService.agregar(detallesFactura);
 
@@ -179,7 +179,7 @@ namespace Consola
                                 Console.Write("Sucursal: ");
                                 facturaExistente.sucursal = Console.ReadLine();
 
-                                // Actualizar la factura en la base de datos
+
                                 facturaService.actualizar(facturaExistente, actualizarfactura);
 
 
@@ -244,7 +244,6 @@ namespace Consola
                                                   $"Total (Letras): {factura.total_letras} \n " +
                                                   $"Sucursal: {factura.sucursal} \n ");
 
-                                // Obtener detalles de la factura
                                 var detallesFactura = detalleFacturaService.ObtenerDetallesPorIdFactura(factura.id_factura).ToList();
 
                                 if (detallesFactura.Any())
@@ -252,7 +251,7 @@ namespace Consola
                                     Console.WriteLine("Detalles de la Factura:");
                                     foreach (var detalle in detallesFactura)
                                     {
-                                        // Obtener la descripción del producto utilizando ProductoRepository directamente
+
                                         string descripcionProducto = productoRepository.ObtenerDescripcionPorId(detalle.id_producto);
 
                                         Console.WriteLine($"  ID Producto: {detalle.id_producto} - Descripción: {descripcionProducto}, " +
