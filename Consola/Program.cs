@@ -604,17 +604,31 @@ namespace Consola
                         }
                         if (opciond == "1")
                         {
-                            var detallesFactura = new DetallesFacturaModel();
-                            Console.WriteLine("Ingrese los datos: ");
-                            detallesFactura.id_factura = int.Parse(ReadInput("ID de la factura: "));
-                            detallesFactura.id_producto = int.Parse(ReadInput("ID del Producto: "));
-                            detallesFactura.cantidad_producto = int.Parse(ReadInput("Cantidad de Producto "));
-                            detallesFactura.subtotal = double.Parse(ReadInput("Subtotal: "));
+                            bool Continuar = true;
 
+                            while (Continuar)
+                            {
 
-                            detalleFacturaService.agregar(detallesFactura);
+                                var detallesFactura = new DetallesFacturaModel();
+                                Console.WriteLine("Ingrese los datos: ");
+                                detallesFactura.id_factura = int.Parse(ReadInput("ID de la factura: "));
+                                detallesFactura.id_producto = int.Parse(ReadInput("ID del Producto: "));
+                                detallesFactura.cantidad_producto = int.Parse(ReadInput("Cantidad de Producto "));
+                                double precioProducto = productoService.ObtenerPrecioVenta(detallesFactura.id_producto);
+                                detallesFactura.subtotal = detallesFactura.cantidad_producto * precioProducto;
 
-                            Console.WriteLine("Los Datos han sido registrados correctamente.");
+                                Console.WriteLine($"Subtotal: {detallesFactura.subtotal} ");
+
+                                detalleFacturaService.agregar(detallesFactura);
+
+                                Console.WriteLine("Los Datos han sido registrados correctamente.");
+
+                                string respuesta = ReadInput("¿Desea agregar otro detalle? (s/n): ").ToLower();
+                                if (respuesta != "s")
+                                {
+                                    Continuar = false;
+                                }
+                            }
                         }
                         if (opciond == "2")
                         {
@@ -644,8 +658,11 @@ namespace Consola
                             Console.Write("Cantidad de Producto: ");
                             detallesFactura.cantidad_producto = double.Parse(Console.ReadLine());
 
-                            Console.Write("Subtotal: ");
-                            detallesFactura.subtotal = int.Parse(Console.ReadLine());
+                            
+                            double precioProducto = productoService.ObtenerPrecioVenta(detallesFactura.id_producto);
+                            detallesFactura.subtotal = detallesFactura.cantidad_producto * precioProducto;
+
+                            Console.WriteLine($"Subtotal: {detallesFactura.subtotal} ");
 
                             Console.WriteLine("Los datos han sido actualizados correctamente.");
 
