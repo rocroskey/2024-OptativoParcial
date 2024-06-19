@@ -83,49 +83,8 @@ namespace Consola
                             factura.sucursal = Console.ReadLine();
 
                             facturaService.agregar(factura);
-
-                       
-                            FacturaModel facturaCreada = facturaService.seleccionar(factura.nro_factura);
-
-                            if (facturaCreada != null)
-                            {
-                                int idFactura = facturaCreada.id_factura;
-
-                                bool capturarDetalles = true;
-                                while (capturarDetalles)
-                                {
-                                    var detallesFactura = new DetallesFacturaModel();
-                                    detallesFactura.id_factura = idFactura;
-
-                                    Console.Write("ID Producto: ");
-                                    detallesFactura.id_producto = int.Parse(Console.ReadLine());
-
-                                    Console.Write("Cantidad Producto: ");
-                                    detallesFactura.cantidad_producto = double.Parse(Console.ReadLine());
-
-                                    double precioProducto = productoService.ObtenerPrecioVenta(detallesFactura.id_producto);
-                                    detallesFactura.subtotal = detallesFactura.cantidad_producto * precioProducto;
-
-                                    detallesFactura.id_factura = idFactura;
-
-                                    detalleFacturaService.agregar(detallesFactura);
-
-                                    Console.WriteLine("Detalle de factura agregado.");
-
-                                    Console.Write("¿Desea agregar otro detalle de factura? (S/N): ");
-                                    string respuesta = Console.ReadLine().ToUpper();
-                                    if (respuesta != "S")
-                                    {
-                                        capturarDetalles = false;
-                                    }
-                                }
-
-                                Console.WriteLine("La Factura ha sido registrada correctamente.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("No se encontró ninguna factura con ese número.");
-                            }
+                            Console.WriteLine("La Factura ha sido registrada correctamente.");
+                            
                         }
 
 
