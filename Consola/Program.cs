@@ -24,7 +24,12 @@ namespace Consola
 
             Console.WriteLine("Bienvenido");
 
+            /*
+             
+            Los detalles de Factura se van agregando en su menu independiente, relacionando a una factura mediante ID, 
+            Al momento de listar o buscar facturas tambien se muestran los detalles de facturas correspondientes 
 
+             */
 
             bool continuar = true;
 
@@ -639,7 +644,7 @@ namespace Consola
                                 Console.WriteLine("\nDetalle encontrado:\n");
                                 Console.WriteLine($"ID del Detalle: {detalle_encontrado.id}");
                                 Console.WriteLine($"ID de la Factura: {detalle_encontrado.id_factura}");
-                                Console.WriteLine($"ID del Prodcuto: {detalle_encontrado.id_producto}");
+                                Console.WriteLine($"ID del Producto: {detalle_encontrado.id_producto}");
                                 Console.WriteLine($"Descripcion del Producto: {productoRepository.ObtenerDescripcionPorId(detalle_encontrado.id_producto)}");
                                 Console.WriteLine($"Cantidad de Producto: {detalle_encontrado.cantidad_producto}");
                                 Console.WriteLine($"Subtotal: {detalle_encontrado.subtotal}");
